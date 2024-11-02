@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Tone it down..",
+  "version": "1.0.0",
+  "description": "Takes the !! out of intense texts.",
+  "action": {
+    "default_popup": "index.html"
+  },
+  "permissions": [],
+  "icons": {
+    "128": "upsidedownface.png"
+  }
+  
+}
+

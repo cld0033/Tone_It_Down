@@ -1,0 +1,30 @@
+.App {
+    font-family: Arial, sans-serif;
+    width: 300px; /* Set a width for the popup */
+    padding: 0;
+  }
+  
+  .App-header {
+    background-color: #333; /* Dark background for header */
+    color: white; /* White text color */
+    padding: 10px;
+    font-size: 16px; /* Font size for header */
+    text-align: center; /* Center-align header text */
+  }
+  
+  .App-content {
+    padding: 20px; /* Padding for content area */
+  }
+  
+  button {
+    padding: 10px 20px; /* Button padding */
+    background-color: #4CAF50; /* Green background for button */
+    color: white; /* White text for button */
+    border: none; /* No border */
+    cursor: pointer; /* Pointer cursor on hover */
+  }
+  
+  button:hover {
+    background-color: #45a049; /* Darker green on hover */
+  }
+  
