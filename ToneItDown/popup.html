@@ -4,25 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tone it Down..</title>
-    <link rel="stylesheet" href="popup.css"> <!-- Add custom styles here -->
+    <link rel="stylesheet" href="popup.css"> <!-- Ensure this file is present -->
 </head>
 <body>
-    <div class="popup-container">
-        <h1>Tone it Down..</h1>
-        <textarea id="inputText" placeholder="Enter text here..."></textarea>
-        <div class="tone-options">
-            <label for="toneToggle">Tone Preference:</label>
-            <select id="toneToggle">
-                <option value="business">Serious but Not Scary</option>
-                <option value="friendly">Bestie Mode</option>
-            </select>
-        </div>
-        <button id="adjustToneButton">Adjust Tone</button>
-        <div id="outputContainer">
-            <h2>Adjusted Message:</h2>
-            <p id="outputText"></p>
-        </div>
-    </div>
-    <script src="popup.js"></script> <!-- Add your JavaScript here -->
+    <div id="root"></div> <!-- This div is where React will render -->
+    <script type="module" src="./main.js"></script> <!-- Ensure this points to the correct JS -->
 </body>
 </html>

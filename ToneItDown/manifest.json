@@ -16,8 +16,14 @@
       "128": "assets/side_eye.png"
     }
   },
-  "permissions": [
-    "storage"
+  "permissions": ["storage"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
   ]
 }
-

@@ -8,28 +8,24 @@ export default defineConfig({
     react(),
     viteStaticCopy({
       targets: [
-        {
-          src: 'assets/**/*',  // Copy all files in assets folder
-          dest: 'assets'       // Place them in dist/assets folder
-        },
-        {
-          src: 'manifest.json',  // Copy the manifest.json file
-          dest: '.'              // Place it in the root of dist
-        },
-        {
-          src: 'popup.html',     // Copy popup.html file
-          dest: '.'              // Place it in the root of dist
-        }
+        { src: 'assets/**/*', dest: 'assets' },
+        { src: 'manifest.json', dest: '.' },
+        { src: 'popup.html', dest: '.' },
       ]
     })
   ],
   build: {
     rollupOptions: {
       input: {
-        main: 'index.html'
+        main: 'src/main.jsx',
+        background: 'src/background.js',  // Include background.js
+        content: 'src/content.js',        // Include content.js
+      },
+      output: {
+        entryFileNames: '[name].js',  // Keeps the original names
+        chunkFileNames: '[name].[hash].js',
+        assetFileNames: 'assets/[name].[ext]'
       }
     }
   }
 });
-
-
