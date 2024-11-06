@@ -11,6 +11,7 @@ export default defineConfig({
         { src: 'assets/**/*', dest: 'assets' },
         { src: 'manifest.json', dest: '.' },
         { src: 'popup.html', dest: '.' },
+        { src: 'popup.css', dest: '.' } 
       ]
     })
   ],
@@ -18,11 +19,11 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: 'src/main.jsx',
-        background: 'src/background.js',  // Include background.js
-        content: 'src/content.js',        // Include content.js
+        background: 'src/background.js',
+        content: 'src/content.js',
       },
       output: {
-        entryFileNames: '[name].js',  // Keeps the original names
+        entryFileNames: '[name].js',
         chunkFileNames: '[name].[hash].js',
         assetFileNames: 'assets/[name].[ext]'
       }
