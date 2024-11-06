@@ -1,23 +1,50 @@
-// Start by checking if it's possible to create a session based on the availability of the model, and the characteristics of the device.
+let session;
+
 const initializeSession = async () => {
-    const {available, defaultTemperature, defaultTopK, maxTopK } = await ai.languageModel.capabilities();
-
+    const { available } = await ai.languageModel.capabilities();
     if (available !== "no") {
-        const session = await ai.languageModel.create();
-    } else{
-        console.error("prompt API didn't work");
+        session = await ai.languageModel.create();
+        console.log("Session initialized: AILanguageModel");
+    } else {
+        console.error("Prompt API is not available");
     }
-}
+};
 
-// Listen for messages from other parts of the extension
-chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
-    // Handle input processing and summarization
-    if (request.input) {
-      console.log("Received input:", request.input);
-      
-        const result = await session.prompt("Write me a poem");
-        console.log(result);
-      // Return true to indicate you want to send a response asynchronously
-      return true;
+// Initialize the session when the background script starts
+initializeSession();
+
+// Listen for messages from the popup
+chrome.runtime.onMessage.addListener(async function (request, sender, sendResponse) {
+    if (request.input && session) {
+        console.log("Processing input:", request.input);
+        try {
+            const result = await session.prompt(request.input);
+            console.log("Full prompt result:", result);
+            const replyText = result.reply;
+
+            sendResponse({ reply: replyText || "No reply text returned." });
+        } catch (error) {
+            console.error("Error fetching reply:", error);
+            sendResponse({ reply: `Error: ${error.message}` });
+        }
+    } else {
+        if (request.action === "processInput") {
+            const { input, tone } = request;
+        
+            // Call your API and get the result
+            getAPIResponse(input, tone).then((response) => {
+              // After processing, send the response back to the popup
+              chrome.runtime.sendMessage({ reply: response });
+            }).catch((error) => {
+              console.error("Error fetching response:", error);
+              chrome.runtime.sendMessage({ reply: `Error: ${error.message}` });
+            });
+          
+        } else {
+            sendResponse({ reply: "No active session or invalid input." });
+        }
     }
-  });
+    // Return true to keep the channel open while awaiting the async operation
+    return true;
+});
+
