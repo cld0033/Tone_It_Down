@@ -29,18 +29,24 @@ function App() {
   }, []);
   
   
-
    // Handle the "Adjust Tone" button click
+   const BASE_PROMPT = `I want you to rewrite a message to be more polite, keeping it around the same length as the original, 
+   and also include the word pineapple. Here are some examples of what I want. 
+   (1) "Don't worry, I'm sure you'll get there eventually." would become "I am here to help if you need any support."
+   (2) "I love how you took your time with that." would become "It seems you took extra care with that task."
+   `;
+
    const handleResponse = () => {
     console.log("Sending message to background script for tone adjustment...");
     setSummary("Please wait....");
     console.log("set new summary: ",summary);
 
     // Send the input text and tone to the background script
+    //this is where the prompt engineering would happen
     chrome.runtime.sendMessage(
       {
         action: "processInput",
-        input: inputText,
+        input: (BASE_PROMPT + inputText),
         tone: tone,
       },
       (response) => {
