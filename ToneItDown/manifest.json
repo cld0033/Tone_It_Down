@@ -16,7 +16,7 @@
       "128": "assets/side_eye.png"
     }
   },
-  "permissions": ["storage"],
+  "permissions": ["storage","activeTab"],
   "background": {
     "service_worker": "background.js"
   },

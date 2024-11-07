@@ -6,44 +6,52 @@ function App() {
   const [inputText, setInputText] = useState("");
   const [tone, setTone] = useState("business");
 
-  console.log("App rendered");
-  // Listen for messages from background.js
+
+  //this is a useEffect, which will activate whenever the second argument changes. 
+  //Second argument here is empty, meaning it will only activate once. 
+  //but for example if the argument were [inputText] then it would activate every time inputText
   useEffect(() => {
+    console.log("useEffect - setting up message listener");
+  
     const messageListener = (request) => {
+      console.log("Received message in listener:", request);
       if (request.reply) {
-        console.log("App received a reply from background");
-        setSummary(request.reply); // Update the summary state with the reply from background.js
+        setSummary(request.reply);
       }
     };
-
-    // Register the listener
+  
     chrome.runtime.onMessage.addListener(messageListener);
-
-    // Cleanup listener on component unmount
+  
     return () => {
+      console.log("Cleaning up message listener");
       chrome.runtime.onMessage.removeListener(messageListener);
     };
   }, []);
+  
+  
 
-  const handleResponse = async () => {
-    setSummary("Processing..."); // Set loading state
+   // Handle the "Adjust Tone" button click
+   const handleResponse = () => {
+    console.log("Sending message to background script for tone adjustment...");
+    setSummary("Please wait....");
+    console.log("set new summary: ",summary);
 
-    try {
-      // Send the input and tone message to the background
-      chrome.runtime.sendMessage(
-        { action: "processInput", input: inputText, tone: tone },
-        (response) => {
-          if (chrome.runtime.lastError) {
-            console.log("processInput erro");
-            setSummary(`Error: ${chrome.runtime.lastError.message}`);
-          }
-          // No need to handle response here, it's handled in the useEffect
+    // Send the input text and tone to the background script
+    chrome.runtime.sendMessage(
+      {
+        action: "processInput",
+        input: inputText,
+        tone: tone,
+      },
+      (response) => {
+        if (chrome.runtime.lastError) {
+          console.error("sendMessage error:", chrome.runtime.lastError);
+        } else {
+          console.log("Direct callback response:", response);
+          setSummary(response.reply);
         }
-      );
-    } catch (error) {
-      console.log("Error 2");
-      setSummary(`Error: ${error.message}`);
-    }
+      }
+    );
   };
 
   return (
@@ -69,7 +77,7 @@ function App() {
       <button onClick={handleResponse}>Adjust Tone</button>
       <div id="outputContainer">
         <h2>Adjusted Message:</h2>
-        <p>{summary}</p>
+        <p key={summary}>{summary}</p>
       </div>
     </div>
   );
