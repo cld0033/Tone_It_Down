@@ -64,7 +64,6 @@ function App() {
 
   return (
     <div className="popup-container">
-      <h1>Tone it Down..</h1>
       <textarea
         id="inputText"
         placeholder="Enter text here..."
@@ -72,7 +71,7 @@ function App() {
         onChange={(e) => setInputText(e.target.value)}
       ></textarea>
       <div className="tone-options">
-        <label htmlFor="toneToggle">Bestie Mode</label>
+        <span id="toneLabel">{isFriendlyTone ? "Bestie Mode" : "Serious but Not Scary"}</span>
         <label className="switch">
           <input
             type="checkbox"
@@ -82,12 +81,11 @@ function App() {
           />
           <span className="slider"></span>
         </label>
-        <span>Serious but Not Scary</span>
       </div>
-      <button onClick={handleResponse}>Adjust Tone</button>
+      <button id="adjustToneButton" onClick={handleResponse}>Tone It Down..</button>
       <div id="outputContainer">
         <h2>Adjusted Message:</h2>
-        <p key={summary}>{summary}</p>
+        <p id="outputText">{summary}</p>
       </div>
     </div>
   );
