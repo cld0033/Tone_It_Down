@@ -5,6 +5,8 @@ function App() {
   const [summary, setSummary] = useState("Awaiting response...");
   const [inputText, setInputText] = useState("");
   const [tone, setTone] = useState("business");
+  const [isFriendlyTone, setIsFriendlyTone] = useState(false);
+
 
 
   //this is a useEffect, which will activate whenever the second argument changes. 
@@ -70,15 +72,17 @@ function App() {
         onChange={(e) => setInputText(e.target.value)}
       ></textarea>
       <div className="tone-options">
-        <label htmlFor="toneToggle">Tone Preference:</label>
-        <select
-          id="toneToggle"
-          value={tone}
-          onChange={(e) => setTone(e.target.value)}
-        >
-          <option value="business">Serious but Not Scary</option>
-          <option value="friendly">Bestie Mode</option>
-        </select>
+        <label htmlFor="toneToggle">Bestie Mode</label>
+        <label className="switch">
+          <input
+            type="checkbox"
+            id="toneToggle"
+            checked={isFriendlyTone}
+            onChange={(e) => setIsFriendlyTone(e.target.checked)}
+          />
+          <span className="slider"></span>
+        </label>
+        <span>Serious but Not Scary</span>
       </div>
       <button onClick={handleResponse}>Adjust Tone</button>
       <div id="outputContainer">

@@ -8,15 +8,7 @@
     "48": "assets/side_eye.png",
     "128": "assets/side_eye.png"
   },
-  "action": {
-    "default_popup": "popup.html",
-    "default_icon": {
-      "16": "assets/side_eye.png",
-      "48": "assets/side_eye.png",
-      "128": "assets/side_eye.png"
-    }
-  },
-  "permissions": ["storage","activeTab"],
+  "permissions": ["storage"],
   "background": {
     "service_worker": "background.js"
   },
@@ -25,5 +17,13 @@
       "matches": ["<all_urls>"],
       "js": ["content.js"]
     }
-  ]
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "assets/side_eye.png",
+      "48": "assets/side_eye.png",
+      "128": "assets/side_eye.png"
+    }
+  }
 }
