@@ -16,7 +16,7 @@ function App() {
     const messageListener = (request) => {
       console.log('Received message in listener:', request);
       if (request.reply) {
-        setSummary(request.reply);
+        setSummary((prev) => +' ' + request.reply);
       }
     };
 

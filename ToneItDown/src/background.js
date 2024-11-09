@@ -25,7 +25,6 @@ const initializeSession = async () => {
 };
 initializeSession();
 
-//receive inputs, call the prompt API, and send back the response to App
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'processInput') {
     //request is action, input, and tone
@@ -41,7 +40,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           throw new Error('Failed to initialize session.');
         }
         const promptMessage = `Please rewrite the following message in a'
-        + ' ${request.tone} tone: "${request.input}"`;
+          + ' ${request.tone} tone: "${request.input}"`;
         const response = await getAPIResponse(promptMessage); //request.input
         console.log('background listener got this response:', response);
 
