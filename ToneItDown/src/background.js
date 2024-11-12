@@ -39,8 +39,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         if (!session) {
           throw new Error('Failed to initialize session.');
         }
-        const promptMessage = `Please rewrite the following message in a'
-          + ' ${request.tone} tone: "${request.input}"`;
+        const promptMessage =
+          `Please rewrite the following message in a` +
+          ` ${request.tone} tone: "${request.input}"`;
         const response = await getAPIResponse(promptMessage); //request.input
         console.log('background listener got this response:', response);
 
@@ -64,18 +65,25 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 //this will just return a response, can adjust for tone later.
 async function getAPIResponse(input) {
-  let result = '';
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const stream = session.promptStreaming(input);
   let previousChunk = '';
+  let result = '';
   try {
     for await (const chunk of stream) {
-      const newChunk = chunk.startWith(previousChunk)
+      const newChunk = chunk.startsWith(previousChunk)
         ? chunk.slice(previousChunk.length)
         : chunk;
       console.log(newChunk);
       result += newChunk;
       previousChunk = chunk;
+
+      chrome.runtime.sendMessage({ action: 'updateChunk', chunk: newChunk });
+      await delay(500);
     }
+
     console.log(result);
+    return result;
   } catch (error) {
     /*  try {
     const result = await session.prompt(input);
@@ -85,3 +93,12 @@ async function getAPIResponse(input) {
     throw new Error('API call failed: ' + error.message);
   }
 }
+
+/* chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'processInput') {
+    getAPIResponse(message.input).then((response) => {
+      sendResponse({ reply: response });
+    });
+    return true;
+  }
+}); */

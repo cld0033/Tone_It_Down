@@ -15,8 +15,8 @@ function App() {
 
     const messageListener = (request) => {
       console.log('Received message in listener:', request);
-      if (request.reply) {
-        setSummary((prev) => +' ' + request.reply);
+      if (request.action === 'updateChunk') {
+        setSummary((prev) => prev + request.chunk);
       }
     };
 
