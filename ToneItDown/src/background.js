@@ -64,24 +64,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 //this will just return a response, can adjust for tone later.
 async function getAPIResponse(input) {
-  let result = '';
-  let previousChunk = '';
   try {
-    for await (const chunk of stream) {
-      const newChunk = chunk.startWith(previousChunk)
-        ? chunk.slice(previousChunk.length)
-        : chunk;
-      console.log(newChunk);
-      result += newChunk;
-      previousChunk = chunk;
-    }
-    console.log(result);
-  } catch (error) {
-    /*  try {
     const result = await session.prompt(input);
     console.log('getAPIResponse got this result: ', result);
     return result || 'No reply returned by API.';
-  } */ console.error('Error calling Gemini Nano API:', error);
+  } catch (error) {
+    console.error('Error calling Gemini Nano API:', error);
     throw new Error('API call failed: ' + error.message);
   }
 }
