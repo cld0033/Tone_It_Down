@@ -25,7 +25,7 @@ const initializeSession = async () => {
 };
 initializeSession();
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener(async function (request, sender, sendResponse) {
   if (request.action === 'processInput') {
     //request is action, input, and tone
     console.log('Received processInput request:', request);
