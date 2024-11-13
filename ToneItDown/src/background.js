@@ -25,42 +25,29 @@ const initializeSession = async () => {
 };
 initializeSession();
 
-chrome.runtime.onMessage.addListener(async function (request, sender, sendResponse) {
-  if (request.action === 'processInput') {
-    //request is action, input, and tone
-    console.log('Received processInput request:', request);
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "processInput") {
+      console.log("Received processInput request:", request);
 
-    (async () => {
-      try {
-        if (!session) {
-          console.error('Session not initialized. Retrying...');
-          await initializeSession();
-        }
-        if (!session) {
-          throw new Error('Failed to initialize session.');
-        }
-        const promptMessage = `Please rewrite the following message in a'
-          + ' ${request.tone} tone: "${request.input}"`;
-        const response = await getAPIResponse(promptMessage); //request.input
-        console.log('background listener got this response:', response);
+      (async () => {
+          try {
+              const response = await getAPIResponse(request.input);
+              console.log("background listener got this response:", response);
+              sendResponse({ reply: response });
+          } catch (error) {
+              console.error("Error in getAPIResponse:", error);
+              sendResponse({ reply: `Error: ${error.message}` });
+          }
+      })();
 
-        // Log before sending the response back
-        console.log('Sending to popup...');
-        sendResponse({ reply: response });
-        console.log('response sent with: ', response);
-      } catch (error) {
-        console.error('Error in getAPIResponse:', error);
-        sendResponse({ reply: `Error: ${error.message}` });
-      }
-    })();
-
-    return true; // Keeps the message channel open for async sendResponse
+      return true;  // Keeps the message channel open for async sendResponse
   }
 
-  console.log('No valid action or session/input received.');
-  sendResponse({ reply: 'No valid action or session/input received.' });
+  console.log("No valid action or session/input received.");
+  sendResponse({ reply: "No valid action or session/input received." });
   return true;
 });
+
 
 //this will just return a response, can adjust for tone later.
 async function getAPIResponse(input) {
