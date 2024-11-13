@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import './App.css';
 
 function App() {
-  const [summary, setSummary] = useState('Awaiting response...');
+  const [summary, setSummary] = useState('Rewording...');
   const [inputText, setInputText] = useState('');
   const [tone, setTone] = useState('business');
   const [isFriendlyTone, setIsFriendlyTone] = useState(false); //dynamically changes tone sent in request
@@ -84,7 +84,7 @@ function App() {
         Tone It Down..
       </button>
       <div id="outputContainer">
-        <h2>Adjusted Message:</h2>
+        <h2>Friendly Version:</h2>
         <p id="outputText">{summary}</p>
       </div>
       <script src="background.js"></script>
