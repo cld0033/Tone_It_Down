@@ -10,7 +10,7 @@ const initializeSession = async () => {
       session = await ai.languageModel.create({
         systemPrompt:
           'Pretend to be an executive assistant that is ' +
-          'toning down the subtext and nuance in an message to another employee, ' +
+          'adjusting the the subtext and nuance in a message based on the intended tone' +
           'respond only with the rewritten message, and limit rewritten message to a ' +
           'resonable length',
       });
@@ -31,7 +31,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
       (async () => {
           try {
-              const response = await getAPIResponse(request.input);
+              const response = await getAPIResponse(request.input,request.tone);
               console.log("background listener got this response:", response);
               sendResponse({ reply: response });
           } catch (error) {
@@ -49,9 +49,17 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 
-//this will just return a response, can adjust for tone later.
-async function getAPIResponse(input) {
+//adjusted this section for tone, can get more detailed but should be in a separate function. 
+async function getAPIResponse(input, tone) {
   try {
+    if (tone === "business"){
+        console.log("business mode");
+        input = "The intended tone is meant to be serious and for a work colleague. Avoid anything problematic but don't be too casual. Here is the sentence: " + input;
+    }
+    else {
+      console.log("friendly mode");
+      input = "The intended tone is meant to be friendly. Include occasional exclamation marks and casual language so the recipient feels comfortable. There is the sentence: " + input;
+    }
     const result = await session.prompt(input);
     console.log('getAPIResponse got this result: ', result);
     return result || 'No reply returned by API.';

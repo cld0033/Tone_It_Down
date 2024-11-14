@@ -29,7 +29,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    setTone(isFriendlyTone ? 'friendly' : 'buisness');
+    setTone(isFriendlyTone ? 'friendly' : 'business');
   }, [isFriendlyTone]);
 
   // Handle the "Adjust Tone" button click
