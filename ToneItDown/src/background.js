@@ -1,6 +1,11 @@
-// Function to initialize the session
+import { pipeline } from '@xenova/transformers';
+import { env } from '@huggingface/transformers';
 
+
+// Function to initialize the session
 let session;
+let toneClassifier;
+
 const initializeSession = async () => {
   console.log('initializing background');
   try {
@@ -24,6 +29,31 @@ const initializeSession = async () => {
   }
 };
 initializeSession();
+
+async function initializeModel() {
+  // Specify a custom location for models (defaults to '/models/').
+  env.localModelPath = './models/';
+
+  // Disable the loading of remote models from the Hugging Face Hub:
+  env.allowRemoteModels = false;
+
+  // Set location of .wasm files. Defaults to use a CDN.
+  env.backends.onnx.wasm.wasmPaths = './models/onnx';
+  try {
+    console.log("Loading T5 tone classification model...");
+
+    // Initialize the pipeline with local paths to model and tokenizer
+    toneClassifier = await pipeline('text-classification', null, {
+        model: './models', // Path to the model files
+        tokenizer: './models', // Path to the tokenizer files
+    });
+
+    console.log("Model loaded successfully.");
+} catch (error) {
+    console.error("Error loading the model:", error);
+}
+}
+initializeModel();
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "processInput") {
@@ -67,4 +97,28 @@ async function getAPIResponse(input, tone) {
     console.error('Error calling Gemini Nano API:', error);
     throw new Error('API call failed: ' + error.message);
   }
+};
+
+async function predictTone(sentence) {
+  if (!toneClassifier) {
+      throw new Error("Tone classifier is not initialized.");
+  }
+  try {
+      const predictions = await toneClassifier(sentence);
+      console.log("Tone prediction result:", predictions);
+      return predictions[0]?.label || "Unknown tone";
+  } catch (error) {
+      console.error("Error predicting tone:", error);
+      return "Error in tone prediction";
+  }
 }
+
+// Example: Call predictTone to test functionality
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "processTone") {
+      predictTone(request.sentence)
+          .then((tone) => sendResponse({ tone }))
+          .catch((err) => sendResponse({ error: err.message }));
+      return true; // Keeps the message channel open for async response
+  }
+});
