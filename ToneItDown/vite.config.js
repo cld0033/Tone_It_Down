@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill';
+import { resolve } from 'path';
 
 
 export default defineConfig({
@@ -31,7 +32,11 @@ export default defineConfig({
     alias: {
       stream: 'stream-browserify',
       util: 'util/',
+      '@': '/src'
     },
+  },
+  optimizeDeps: {
+    include: ['@xenova/transformers'],
   },
   build: {
     rollupOptions: {
