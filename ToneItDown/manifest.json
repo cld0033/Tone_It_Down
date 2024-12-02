@@ -30,8 +30,8 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["models/onnx/model.onnx", 
-      "models/spiece.model"],
+      "resources": ["models/model-quantized.onnx", 
+      "models/tokenizer.json"],
       "matches": ["<all_urls>"]
     }
   ],

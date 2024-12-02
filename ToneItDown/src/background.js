@@ -1,7 +1,7 @@
 import { pipeline, env } from '@xenova/transformers';
 
 // Set the cache directory and model path
-env.cache_dir = 'models'; 
+env.cache_dir = chrome.runtime.getURL('models');
 
 // Function to initialize the session
 let session;
@@ -33,29 +33,64 @@ initializeSession();
 
 async function initializeModel() {
   try {
-    console.log("Loading T5 tone classification model...");
+    console.log("Loading quantized ONNX model...");
 
-    // Fetch the ONNX model file
-    const modelUrl = chrome.runtime.getURL('models/onnx/model.onnx');
+    const modelUrl = chrome.runtime.getURL('models/model-quantized.onnx');
     const modelResponse = await fetch(modelUrl);
+    if (!modelResponse.ok) {
+      throw new Error(`Failed to fetch ONNX model: ${modelResponse.statusText}`);
+    }
     const modelArrayBuffer = await modelResponse.arrayBuffer();
+    console.log("Model loaded.");
 
-    // Initialize the tokenizer using the path to the model folder
-    const tokenizerUrl = chrome.runtime.getURL('models');  // Folder containing the tokenizer files
+    // Fetch tokenizer files
+    const tokenizerUrl = chrome.runtime.getURL('models/tokenizer.json');
+    const tokenizerConfigUrl = chrome.runtime.getURL('models/tokenizer_config.json');
+    const specialTokensUrl = chrome.runtime.getURL('models/special-tokens_map.json');
 
-    // Initialize the pipeline with the correct model and tokenizer
+    const tokenizerResponse = await fetch(tokenizerUrl);
+    if (!tokenizerResponse.ok) {
+      throw new Error(`Failed to fetch tokenizer: ${tokenizerResponse.statusText}`);
+    }
+    const tokenizerData = await tokenizerResponse.json();
+    console.log("Tokenizer loaded.");
+
+    const tokenizerConfigResponse = await fetch(tokenizerConfigUrl);
+    if (!tokenizerConfigResponse.ok) {
+      throw new Error(`Failed to fetch tokenizer config: ${tokenizerConfigResponse.statusText}`);
+    }
+    const tokenizerConfigData = await tokenizerConfigResponse.json();
+    console.log("Tokenizer config loaded.");
+
+    const specialTokensResponse = await fetch(specialTokensUrl);
+    if (!specialTokensResponse.ok) {
+      throw new Error(`Failed to fetch special tokens map: ${specialTokensResponse.statusText}`);
+    }
+    const specialTokensData = await specialTokensResponse.json();
+    console.log("Special tokens map loaded.");
+
+    // Initialize the pipeline after all files are loaded
+    const tokenizer = {
+      tokenizer: tokenizerData,
+      tokenizerConfig: tokenizerConfigData,
+      specialTokens: specialTokensData
+    };
+
     toneClassifier = await pipeline('text-classification', {
       model: new Uint8Array(modelArrayBuffer),
-      tokenizer: tokenizerUrl,  // Point to the folder containing tokenizer files
+      tokenizer: tokenizer,
       backend: 'onnx',
     });
 
-    console.log("Model loaded successfully.");
+    console.log("Pipeline initialized:", toneClassifier);
+
   } catch (error) {
-    console.error("Error loading the model:", error);
+    console.error("Error during pipeline initialization:", error);
   }
 }
+
 initializeModel();
+
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "processInput") {
@@ -63,11 +98,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     (async () => {
       try {
+        if (typeof toneClassifier !== 'function') {
+          throw new Error("toneClassifier is not a function");
+        }
         const result = await toneClassifier(request.input);
         console.log("background listener got this response:", result);
         sendResponse({ reply: result });
       } catch (error) {
         console.error("Error in getAPIResponse:", error);
+        sendResponse({ error: error.message });
       }
     })();
 
@@ -78,13 +117,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 // Adjusted this section for tone, can get more detailed but should be in a separate function.
 async function getAPIResponse(input, tone) {
   try {
-    if (tone === "business") {
-      console.log("business mode");
-      input = "The intended tone is meant to be serious and for a work colleague. Avoid anything problematic but don't be too casual. Here is the sentence: " + input;
-    } else {
-      console.log("friendly mode");
-      input = "The intended tone is meant to be friendly. Include occasional exclamation marks and casual language so the recipient feels comfortable. Here is the sentence: " + input;
+    if (!toneClassifier) {
+      throw new Error("Tone classifier is not ready. Please wait for the model to load.");
     }
+
+    if (tone === "business") {
+      input = `The intended tone is serious and for a work colleague. Avoid being too casual. Here is the sentence: ${input}`;
+    } else {
+      input = `The intended tone is friendly. Use casual language to make the recipient feel comfortable. Here is the sentence: ${input}`;
+    }
+
     const result = await predictTone(input);
     return result;
   } catch (error) {
@@ -95,11 +137,18 @@ async function getAPIResponse(input, tone) {
  
 
 async function predictTone(sentence) {
-  if (!toneClassifier) {
-    throw new Error("Tone classifier is not initialized.");
-  }
   try {
-    const predictions = await toneClassifier(sentence);
+    if (!toneClassifier) {
+      console.warn("Tone classifier is not ready. Waiting...");
+      return "Model is still loading. Please try again later.";
+    }
+
+    // Ensure input is a string
+    if (typeof sentence !== 'string') {
+      throw new Error("Input must be a string");
+    }
+
+    const predictions = await toneClassifier(sentence); // Ensure proper usage
     console.log("Tone prediction result:", predictions);
     return predictions[0]?.label || "Unknown tone";
   } catch (error) {
@@ -107,13 +156,3 @@ async function predictTone(sentence) {
     return "Error in tone prediction";
   }
 }
-
-// Example: Call predictTone to test functionality
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === "processTone") {
-      predictTone(request.sentence)
-          .then((tone) => sendResponse({ tone }))
-          .catch((err) => sendResponse({ error: err.message }));
-      return true; // Keeps the message channel open for async response
-  }
-});
