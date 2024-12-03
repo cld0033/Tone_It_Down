@@ -75,12 +75,27 @@ async function getAPIResponse(input, tone) {
     if (tone === 'business') {
       console.log('Business mode');
       input =
-        'The intended tone is meant to be serious and for a work colleague. Avoid anything problematic but don\'t be too casual. Here is the sentence: ' +
+        `The intended tone is meant to be serious and for a work colleague. Avoid anything problematic but don\'t be too casual. 
+        Here are some examples: 
+        >[Oh, that's totally not obvious at all.] would become [That could be clearer.]
+        >[Hey, I'm not sure if you're aware of this, but...] would become [Just a heads up, ...]
+        >[Please respond as soon as you can.] would become [Please respond at your earliest convenience, if that's alright.]
+        >[It\'s not rocket science.] would become [It\'s fairly straightforward]
+        >[I\'l let you figure it out.] would become [Feel free to take a lead on this!]
+        Here is the sentence: ` +
         input;
     } else {
       console.log('Friendly mode');
       input =
-        'The intended tone is meant to be friendly. Include occasional exclamation marks and casual language so the recipient feels comfortable. Here is the sentence: ' +
+        `The intended tone is meant to be friendly. Include occasional exclamation marks, emojis, and casual language so the recipient feels comfortable. 
+        Here are some examples: 
+        >[Can we discuss this?] would become [Hey, I hope I'm not bothering you, but can we chat about this?]
+        >[Ok.] would become [Okay! 😊]
+        >[Sure.] would become [Absolutely!]
+        >[I\'m not sure.] would become [I'm not sure, but I think...]
+        >[You\'re wrong.] would become [Hey I think you might have missed something here!]
+        >[I\'m very upset with you.] would become [I'm a bit upset, but I think we can work this out.]
+        Here is the sentence: ` +
         input;
     }
     const result = await session.prompt(input);
