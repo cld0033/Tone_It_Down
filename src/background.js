@@ -12,7 +12,7 @@ const initializeSession = async () => {
           'Pretend to be an executive assistant that is ' +
           'adjusting the subtext and nuance in a message based on the intended tone. ' +
           'Respond only with the rewritten message, and limit the rewritten message to a ' +
-          'reasonable length.',
+          'length similar to the original message. Also, be sure you are rewriting the message and not replying to it.',
       });
 
       console.log('Session initialized: AILanguageModel');
