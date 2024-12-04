@@ -1,6 +1,6 @@
 # Tone It Down: text rewriting for friends and coworkers
 ## A Google Chrome extension using Gemini Nano
---insert demo video here--
+![](https://github.com/cld0033/Tone_It_Down/blob/main/quick_demo.gif)
 
 # Installation
 Download the github repo. From the repo, run: 
